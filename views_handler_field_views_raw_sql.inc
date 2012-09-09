@@ -36,7 +36,13 @@ class views_handler_field_views_raw_sql extends views_handler_field {
       '#title' => 'SQL',
       '#description' => t('This SQL will be added to the query as a field expression.'),
       '#default_value' => $this->options['raw_sql'],
+      '#required' => TRUE,
     );
+
+    if (!user_access('edit views raw sql')) {
+      $form['raw_sql']['#disabled'] = TRUE;
+      $form['raw_sql']['#description'] = t('You lack %permission permission to edit this field.', array('%permission' => 'edit views raw sql'));
+    } // if
 
   } // options_form
 
