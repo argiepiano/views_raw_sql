@@ -19,6 +19,7 @@ class views_handler_sort_views_raw_sql extends views_handler_sort {
 
     // Override the alter text option to never alter the text.
     $options['alter']['contains']['alter_text'] = array('default' => FALSE);
+    $options['raw_sql'] = array('default' => '');
 
     return $options;
 
