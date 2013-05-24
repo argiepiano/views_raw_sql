@@ -54,6 +54,14 @@ function views_raw_sql_views_data() {
     ),
   );
 
+  $data['views_raw_sql']['raw_filter'] = array(
+    'title' => t('Raw filter'),
+    'help' => t('Provide raw SQL filter exporession.'),
+    'filter' => array(
+      'handler' => 'views_handler_filter_views_raw_sql',
+    ),
+  );
+
   return $data;
 
 } // views_raw_sql_views_data

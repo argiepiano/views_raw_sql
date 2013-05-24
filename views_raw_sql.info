@@ -6,3 +6,4 @@ dependencies[] = views
 
 files[] = views_handler_field_views_raw_sql.inc
 files[] = views_handler_sort_views_raw_sql.inc
+files[] = views_handler_filter_views_raw_sql.inc
