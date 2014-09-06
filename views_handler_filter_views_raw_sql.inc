@@ -10,13 +10,8 @@ class views_handler_filter_views_raw_sql extends views_handler_filter {
   function query() {
 
     $raw_sql = $this->options['raw_sql'];
-    // Get replacement tokens like @see views_handler_filter::get_replacement_tokens()
-    $tokens = array();
-    $count = 0;
-    foreach ($this->view->display_handler->get_handlers('argument') as $arg => $handler) {
-      ++$count;
-      $tokens['!' . $count] = isset($this->view->args[$count - 1]) ? strip_tags(decode_entities($this->view->args[$count - 1])) : '';
-    }
+    // Get replacement tokens.
+    $tokens = views_raw_sql_get_query_tokens($this->view, $this->options['id']);
     // And replace.
     $raw_sql = str_replace(array_keys($tokens), $tokens, $raw_sql);
 
@@ -46,7 +41,7 @@ class views_handler_filter_views_raw_sql extends views_handler_filter {
     $form['raw_sql'] = array(
       '#type' => 'textarea',
       '#title' => 'SQL',
-      '#description' => t('This SQL will be added to the query as a filter expression. Use placeholders like !1 for arguments.'),
+      '#description' => t('This SQL will be added to the query as a filter expression. You can use placeholders like in field rewrite.'),
       '#default_value' => $this->options['raw_sql'],
       '#required' => TRUE,
     );

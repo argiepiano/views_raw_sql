@@ -9,7 +9,13 @@ class views_handler_sort_views_raw_sql extends views_handler_sort {
 
   function query() {
 
-    $this->query->add_orderby(NULL, $this->options['raw_sql'], $this->options['order'], 'raw_sql_order');
+    $raw_sql = $this->options['raw_sql'];
+    // Get replacement tokens.
+    $tokens = views_raw_sql_get_query_tokens($this->view);
+    // And replace.
+    $raw_sql = str_replace(array_keys($tokens), $tokens, $raw_sql);
+
+    $this->query->add_orderby(NULL, $raw_sql, $this->options['order'], 'raw_sql_order');
 
   } // query
 
@@ -32,7 +38,7 @@ class views_handler_sort_views_raw_sql extends views_handler_sort {
     $form['raw_sql'] = array(
       '#type' => 'textarea',
       '#title' => 'SQL',
-      '#description' => t('This SQL will be added to the query as a sort expression.'),
+      '#description' => t('This SQL will be added to the query as a sort expression. You can use placeholders like in field rewrite.'),
       '#default_value' => $this->options['raw_sql'],
       '#required' => TRUE,
     );

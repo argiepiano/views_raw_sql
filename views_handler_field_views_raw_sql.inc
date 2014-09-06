@@ -9,7 +9,13 @@ class views_handler_field_views_raw_sql extends views_handler_field {
 
   function query() {
 
-    $this->field_alias = $this->query->add_field(NULL, $this->options['raw_sql'], 'raw_sql_field');
+    $raw_sql = $this->options['raw_sql'];
+    // Get replacement tokens.
+    $tokens = views_raw_sql_get_query_tokens($this->view);
+    // And replace.
+    $raw_sql = str_replace(array_keys($tokens), $tokens, $raw_sql);
+
+    $this->field_alias = $this->query->add_field(NULL, $raw_sql, 'raw_sql_field');
 
   } // query
 
@@ -34,7 +40,7 @@ class views_handler_field_views_raw_sql extends views_handler_field {
     $form['raw_sql'] = array(
       '#type' => 'textarea',
       '#title' => 'SQL',
-      '#description' => t('This SQL will be added to the query as a field expression.'),
+      '#description' => t('This SQL will be added to the query as a field expression. You can use placeholders like in field rewrite.'),
       '#default_value' => $this->options['raw_sql'],
       '#required' => TRUE,
     );

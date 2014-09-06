@@ -65,3 +65,73 @@ function views_raw_sql_views_data() {
   return $data;
 
 } // views_raw_sql_views_data
+
+/**
+ * Get query tokens. Nearly straight copy (without self tokens) from \views_handler_field::get_render_tokens().
+ *
+ * @todo We might want to cache parts of this.
+ *
+ * @param $view
+ * @param $field_id
+ *   When this is called from a field, searching after current field id is useless.
+ * @return array
+ */
+function views_raw_sql_get_query_tokens($view, $field_id = NULL) {
+  $tokens = array();
+  if (!empty($view->build_info['substitutions'])) {
+    $tokens = $view->build_info['substitutions'];
+  }
+  $count = 0;
+  foreach ($view->display_handler->get_handlers('argument') as $arg => $handler) {
+    $token = '%' . ++$count;
+    if (!isset($tokens[$token])) {
+      $tokens[$token] = '';
+    }
+
+    // Use strip tags as there should never be HTML in the path.
+    // However, we need to preserve special characters like " that
+    // were removed by check_plain().
+    $tokens['!' . $count] = isset($view->args[$count - 1]) ? strip_tags(decode_entities($view->args[$count - 1])) : '';
+  }
+
+  // Get flattened set of tokens for any array depth in $_GET parameters.
+  $tokens += views_raw_sql_get_query_tokens_recursive($_GET);
+
+  // Now add replacements for our fields.
+  foreach ($view->display_handler->get_handlers('field') as $field => $handler) {
+    // We only use fields up to (and NOT including) this one.
+    if ($field == $field_id) {
+      break;
+    }
+
+    $tokens["[$field]"] = "$handler->table_alias.$handler->field_alias";
+  }
+
+  return $tokens;
+}
+
+/**
+ * Get recursive tokens from $_GET value. Straight copy from \views_handler_field::get_token_values_recursive().
+ */
+function views_raw_sql_get_query_tokens_recursive(array $array, array $parent_keys = array()) {
+  $tokens = array();
+
+  foreach ($array as $param => $val) {
+    if (is_array($val)) {
+      // Copy parent_keys array, so we don't afect other elements of this iteration.
+      $child_parent_keys = $parent_keys;
+      $child_parent_keys[] = $param;
+      // Get the child tokens.
+      $child_tokens = views_raw_sql_get_query_tokens_recursive($val, $child_parent_keys);
+      // Add them to the current tokens array.
+      $tokens += $child_tokens;
+    }
+    else {
+      // Create a token key based on array element structure.
+      $token_string = !empty($parent_keys) ? implode('_', $parent_keys) . '_' . $param : $param;
+      $tokens['%' . $token_string] = strip_tags(decode_entities($val));
+    }
+  }
+
+  return $tokens;
+}
