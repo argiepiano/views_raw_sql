@@ -24,8 +24,6 @@ class views_handler_filter_views_raw_sql extends views_handler_filter {
 
     $options = parent::option_definition();
 
-    // Override the alter text option to never alter the text.
-    $options['alter']['contains']['alter_text'] = array('default' => FALSE);
     $options['raw_sql'] = array('default' => '');
 
     return $options;
