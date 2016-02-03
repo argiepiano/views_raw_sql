@@ -34,8 +34,6 @@ class views_handler_filter_views_raw_sql extends views_handler_filter {
 
     parent::options_form($form, $form_state);
 
-    unset($form['alter']);
-
     $form['raw_sql'] = array(
       '#type' => 'textarea',
       '#title' => 'SQL',
