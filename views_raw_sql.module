@@ -104,10 +104,34 @@ function views_raw_sql_get_query_tokens($view, $field_id = NULL) {
       break;
     }
 
-    $tokens["[$field]"] = "$handler->table_alias.$handler->field_alias";
+    $tokens["[$field]"] = views_raw_sql_get_field_sql($handler);
   }
 
   return $tokens;
+}
+
+/**
+ * Get sql from field. We did this before in views_fieldoperations.
+ *
+ * @param $handler
+ * @return string
+ */
+function views_raw_sql_get_field_sql($field) {
+  // Oh this is hacky, but we need  it...
+  if (empty($field->query->fields)) {
+    $field->view->_build('field');
+  }
+  $query_fields = $field->query->fields;
+  if (isset($query_fields[$field->field_alias]['field'])) {
+    // Use a dirty hack to get sql instead of alias.
+    // Because where and orderby are evaluated before aliases are defined.
+    $query_field = $query_fields[$field->field_alias];
+    $snippet = $query_field['field'];
+    if (!empty($query_field['table'])) {
+      $snippet = $query_field['table'] . '.' . $snippet;
+    }
+    return $snippet;
+  }
 }
 
 /**
