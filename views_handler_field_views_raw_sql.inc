@@ -15,7 +15,8 @@ class views_handler_field_views_raw_sql extends views_handler_field {
     // And replace.
     $raw_sql = str_replace(array_keys($tokens), $tokens, $raw_sql);
 
-    $this->field_alias = $this->query->add_field(NULL, $raw_sql, 'raw_sql_field');
+    $params = $this->options['group_type'] != 'group' ? array('function' => $this->options['group_type']) : array();
+    $this->field_alias = $this->query->add_field(NULL, $raw_sql, 'raw_sql_field', $params);
 
   } // query
 
