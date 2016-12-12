@@ -16,7 +16,11 @@ class views_handler_filter_views_raw_sql extends views_handler_filter {
     $raw_sql = str_replace(array_keys($tokens), $tokens, $raw_sql);
 
     $this->ensure_my_table();
-    $this->query->add_where_expression($this->options['group'], $raw_sql);
+
+    if (!empty($this->options['raw_sql_use_having']))
+      $this->query->add_having_expression($this->options['group'], $raw_sql);
+    else
+      $this->query->add_where_expression($this->options['group'], $raw_sql);
 
   } // query
 
@@ -25,6 +29,7 @@ class views_handler_filter_views_raw_sql extends views_handler_filter {
     $options = parent::option_definition();
 
     $options['raw_sql'] = array('default' => '');
+    $options['raw_sql_use_having'] = array('default' => FALSE);
 
     return $options;
 
@@ -41,6 +46,12 @@ class views_handler_filter_views_raw_sql extends views_handler_filter {
       '#default_value' => $this->options['raw_sql'],
       '#required' => TRUE,
     );
+    $form['raw_sql_use_having'] = array(
+      '#type' => 'checkbox',
+      '#title' => 'Use HAVING clause',
+      '#description' => t('Add this SQL to the query HAVING clause rather than the WHERE clause'),
+      '#default_value' => $this->options['raw_sql_use_having']
+    );
 
     if (!user_access('edit views raw sql')) {
       $form['raw_sql']['#disabled'] = TRUE;
@@ -55,6 +66,7 @@ class views_handler_filter_views_raw_sql extends views_handler_filter {
   function options_submit(&$form, &$form_state) {
 
     $this->options['raw_sql'] = $form_state['values']['options']['raw_sql'];
+    $this->options['raw_sql_use_having'] = $form_state['values']['options']['raw_sql_use_having'];
 
   } // options_submit
 
