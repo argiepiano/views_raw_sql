@@ -11,7 +11,7 @@ class views_handler_filter_views_raw_sql extends views_handler_filter {
 
     $raw_sql = $this->options['raw_sql'];
     // Get replacement tokens.
-    $tokens = views_raw_sql_get_query_tokens($this->view, $this->options['id']);
+    $tokens = views_raw_sql_get_query_tokens($this->view);
     // And replace.
     $raw_sql = str_replace(array_keys($tokens), $tokens, $raw_sql);
 
