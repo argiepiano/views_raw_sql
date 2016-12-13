@@ -42,6 +42,7 @@ function views_raw_sql_views_data() {
     'title' => t('Raw field'),
     'help' => t('Provide raw SQL field expression.'),
     'field' => array(
+      'click sortable' => TRUE,
       'handler' => 'views_handler_field_views_raw_sql',
     ),
   );
