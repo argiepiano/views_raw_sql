@@ -83,7 +83,7 @@ function views_raw_sql_get_query_tokens($view, $field_id = NULL) {
     $tokens = $view->build_info['substitutions'];
   }
   $count = 0;
-  foreach ($view->display_handler->get_handlers('argument') as $arg => $handler) {
+  foreach ($view->display_handler->get_handlers('argument') as $arg => $display_handler) {
     $token = '%' . ++$count;
     if (!isset($tokens[$token])) {
       $tokens[$token] = '';
@@ -99,13 +99,20 @@ function views_raw_sql_get_query_tokens($view, $field_id = NULL) {
   $tokens += views_raw_sql_get_query_tokens_recursive($_GET);
 
   // Now add replacements for our fields.
-  foreach ($view->display_handler->get_handlers('field') as $field => $handler) {
+  foreach ($view->display_handler->get_handlers('field') as $current_field_id => $field_handler) {
     // We only use fields up to (and NOT including) this one.
-    if ($field == $field_id) {
+    if ($current_field_id == $field_id) {
       break;
     }
 
-    $tokens["[$field]"] = views_raw_sql_get_field_sql($handler);
+    $tokens["[$current_field_id]"] = views_raw_sql_get_field_sql($field_handler, $field_handler->field_alias);
+    $field_name = $field_handler->field_info['field_name'];
+    foreach ($field_handler->field_info['columns'] as $column_name => $column_info) {
+      $full_column_name = $field_name . '_' . $column_name;
+      if (isset($field_handler->aliases[$full_column_name])) {
+        $tokens["[$current_field_id:$column_name]"] = views_raw_sql_get_field_sql($field_handler, $field_handler->aliases[$full_column_name]);
+      }
+    }
   }
 
   return $tokens;
@@ -114,19 +121,20 @@ function views_raw_sql_get_query_tokens($view, $field_id = NULL) {
 /**
  * Get sql from field. We did this before in views_fieldoperations.
  *
- * @param $handler
+ * @param $field_handler
+ * @param $query_alias
  * @return string
  */
-function views_raw_sql_get_field_sql($field) {
+function views_raw_sql_get_field_sql($field_handler, $query_alias) {
   // Oh this is hacky, but we need  it...
-  if (empty($field->query->fields)) {
-    $field->view->_build('field');
+  if (empty($field_handler->query->fields)) {
+    $field_handler->view->_build('field');
   }
-  $query_fields = $field->query->fields;
-  if (isset($query_fields[$field->field_alias]['field'])) {
+  $query_fields = $field_handler->query->fields;
+  if (isset($query_fields[$query_alias]['field'])) {
     // Use a dirty hack to get sql instead of alias.
     // Because where and orderby are evaluated before aliases are defined.
-    $query_field = $query_fields[$field->field_alias];
+    $query_field = $query_fields[$query_alias];
     $snippet = $query_field['field'];
     if (!empty($query_field['table'])) {
       $snippet = $query_field['table'] . '.' . $snippet;
@@ -159,4 +167,8 @@ function views_raw_sql_get_query_tokens_recursive(array $array, array $parent_ke
   }
 
   return $tokens;
+}
+
+function views_raw_sql_tokens_help() {
+  return t('You can use placeholders like in field rewrite. If you use the views_fielddata module, you can also use tokens like [field:column], as due to views internals [field] only queries the entity ID.');
 }

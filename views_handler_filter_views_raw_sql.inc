@@ -42,7 +42,8 @@ class views_handler_filter_views_raw_sql extends views_handler_filter {
     $form['raw_sql'] = array(
       '#type' => 'textarea',
       '#title' => 'SQL',
-      '#description' => t('This SQL will be added to the query as a filter expression. You can use placeholders like in field rewrite.'),
+      '#description' => t('This SQL will be added to the query as a filter expression.')
+        . ' ' . views_raw_sql_tokens_help(),
       '#default_value' => $this->options['raw_sql'],
       '#required' => TRUE,
     );
