@@ -132,8 +132,8 @@ function views_raw_sql_get_field_sql($field_handler, $query_alias) {
   }
   $query_fields = $field_handler->query->fields;
   if (isset($query_fields[$query_alias]['field'])) {
-    // Use a dirty hack to get sql instead of alias.
-    // Because where and orderby are evaluated before aliases are defined.
+    // We must copy the SQL expression, because aliases can neither be used in
+    // select, where, having, orderby. (At least not portably.)
     $query_field = $query_fields[$query_alias];
     $snippet = $query_field['field'];
     if (!empty($query_field['table'])) {
