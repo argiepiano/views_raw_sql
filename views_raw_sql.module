@@ -106,11 +106,13 @@ function views_raw_sql_get_query_tokens($view, $field_id = NULL) {
     }
 
     $tokens["[$current_field_id]"] = views_raw_sql_get_field_sql($field_handler, $field_handler->field_alias);
-    $field_name = $field_handler->field_info['field_name'];
-    foreach ($field_handler->field_info['columns'] as $column_name => $column_info) {
-      $full_column_name = $field_name . '_' . $column_name;
-      if (isset($field_handler->aliases[$full_column_name])) {
-        $tokens["[$current_field_id:$column_name]"] = views_raw_sql_get_field_sql($field_handler, $field_handler->aliases[$full_column_name]);
+    if (property_exists($field_handler, 'field_info')) {
+      $field_name = $field_handler->field_info['field_name'];
+      foreach ($field_handler->field_info['columns'] as $column_name => $column_info) {
+        $full_column_name = $field_name . '_' . $column_name;
+        if (isset($field_handler->aliases[$full_column_name])) {
+          $tokens["[$current_field_id:$column_name]"] = views_raw_sql_get_field_sql($field_handler, $field_handler->aliases[$full_column_name]);
+        }
       }
     }
   }
