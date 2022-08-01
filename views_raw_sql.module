@@ -19,7 +19,7 @@ function views_raw_sql_views_api() {
 
   return array(
     'api' => 2,
-    'path' => drupal_get_path('module', 'views_raw_sql'),
+    'path' => backdrop_get_path('module', 'views_raw_sql'),
   );
 
 } // views_raw_sql_views_api
@@ -174,4 +174,15 @@ function views_raw_sql_get_query_tokens_recursive(array $array, array $parent_ke
 
 function views_raw_sql_tokens_help() {
   return t('You can use placeholders like in field rewrite. If you use the views_fielddata module, you can also use tokens like [field:column], as due to views internals [field] only queries the entity ID.');
+}
+
+/** 
+ * Implements hook_autoload_info().
+ */
+function views_raw_sql_autoload_info() {
+  return array(
+    'views_handler_sort_views_raw_sql' => 'views/views_handler_sort_views_raw_sql.inc',
+    'views_handler_filter_views_raw_sql' => 'views/views_handler_filter_views_raw_sql.inc',
+    'views_handler_field_views_raw_sql' => 'views/views_handler_field_views_raw_sql.inc',
+  );
 }

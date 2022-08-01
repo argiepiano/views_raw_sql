@@ -1,9 +1,6 @@
 name = Views Raw SQL
 description = Allows raw SQL in Views fields and sorts.
-core = 7.x
+backdrop = 1.x
 package = Views
+type = module
 dependencies[] = views
-
-files[] = views_handler_field_views_raw_sql.inc
-files[] = views_handler_sort_views_raw_sql.inc
-files[] = views_handler_filter_views_raw_sql.inc
